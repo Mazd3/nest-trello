@@ -1,12 +1,12 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { genSalt, hash } from 'bcrypt';
-import { UserService } from 'src/user/user.service';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private userService: UserService,
+    private usersService: UsersService,
     private jwtService: JwtService,
   ) {}
 
@@ -19,18 +19,18 @@ export class AuthService {
   }
 
   async signUp(email: string, password: string) {
-    const user = await this.userService.getUserByEmail(email);
+    const user = await this.usersService.getUserByEmail(email);
 
     if (user) throw new BadRequestException('Email already exists');
 
     const salt = await this.getSalt();
     const hash = await this.getHashPassword(password, salt);
 
-    return this.userService.createUser(email, hash, salt);
+    return this.usersService.createUser(email, hash, salt);
   }
 
   async signIn(email: string, password: string) {
-    const user = await this.userService.getUserByEmail(email);
+    const user = await this.usersService.getUserByEmail(email);
     if (!user) throw new BadRequestException('User not found');
 
     const hash = await this.getHashPassword(password, user.salt);
