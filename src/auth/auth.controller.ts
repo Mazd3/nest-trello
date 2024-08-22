@@ -1,34 +1,48 @@
 import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { SignInDto, SignInResponseDto, SignUpDto } from './auth.dto';
+import {
+  ApiBadRequestResponse,
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import { SignInDto, TokenDto, SignUpDto } from './auth.dto';
 import { plainToInstance } from 'class-transformer';
-import { UserResponseDto } from 'src/users/users.dto';
+import { ReadUserDto } from 'src/users/users.dto';
 import { Public } from './public.decorator';
 
+@ApiBadRequestResponse({ example: { message: 'Bad Request', statusCode: 400 } })
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  //
   constructor(private authService: AuthService) {}
 
   @Post('sign-in')
   @Public()
   @HttpCode(200)
-  @ApiOkResponse({ type: SignInResponseDto })
-  async signIn(@Body() body: SignInDto) {
+  @ApiUnauthorizedResponse({
+    example: { message: 'Unauthorized', statusCode: 401 },
+  })
+  @ApiOkResponse({ type: TokenDto })
+  async signIn(@Body() signInDto: SignInDto) {
     const { accessToken: access_token } = await this.authService.signIn(
-      body.email,
-      body.password,
+      signInDto.email,
+      signInDto.password,
     );
-    return plainToInstance(SignInResponseDto, { access_token });
+    return plainToInstance(TokenDto, { access_token });
   }
 
   @Post('sign-up')
   @Public()
-  @ApiCreatedResponse({ type: UserResponseDto })
-  async signUp(@Body() body: SignUpDto) {
-    const user = await this.authService.signUp(body.email, body.password);
-    return plainToInstance(UserResponseDto, user);
+  @ApiConflictResponse({ example: { message: 'Conflict', statusCode: 409 } })
+  @ApiCreatedResponse({ type: ReadUserDto })
+  async signUp(@Body() signUpDto: SignUpDto) {
+    const user = await this.authService.signUp(
+      signUpDto.email,
+      signUpDto.password,
+    );
+    return plainToInstance(ReadUserDto, user);
   }
 }

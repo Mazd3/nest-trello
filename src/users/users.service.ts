@@ -1,5 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { DbService } from 'src/db/db.service';
+import { UpdateUserDto } from './users.dto';
 
 @Injectable()
 export class UsersService {
@@ -20,12 +25,18 @@ export class UsersService {
     return user;
   }
 
-  createUser(email: string, hash: string, salt: string) {
-    return this.db.user.create({ data: { email, hash, salt } });
+  async createUser(email: string, hash: string, salt: string) {
+    const user = await this.db.user.create({ data: { email, hash, salt } });
+    return user;
   }
 
-  async deleteUserById(id: number) {
-    await this.getUserById(id);
+  async updateUser(authId: number, id: number, updateUserDto: UpdateUserDto) {
+    if (authId !== id) throw new ForbiddenException();
+    return this.db.user.update({ where: { id }, data: updateUserDto });
+  }
+
+  async deleteUserById(authId: number, id: number) {
+    if (authId !== id) throw new ForbiddenException();
     return this.db.user.delete({ where: { id } });
   }
 }

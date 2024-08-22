@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsEmail, IsNotEmpty } from 'class-validator';
+import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
 
 class AuthDto {
   @ApiProperty()
@@ -9,12 +9,14 @@ class AuthDto {
 
   @ApiProperty()
   @IsNotEmpty()
+  @MinLength(6)
   password: string;
 }
 
-export class SignInResponseDto {
+export class TokenDto {
   @ApiProperty()
   @Expose()
+  @IsNotEmpty()
   access_token: string;
 }
 

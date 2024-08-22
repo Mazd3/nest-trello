@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
+import { IsEmail } from 'class-validator';
 
 export class UserDto {
   @ApiProperty()
@@ -19,20 +20,10 @@ export class UserDto {
   updatedAt: Date;
 }
 
-export class UserResponseDto {
-  @ApiProperty()
-  @Expose()
-  id: number;
+export class ReadUserDto extends UserDto {}
 
+export class UpdateUserDto {
   @ApiProperty()
-  @Expose()
+  @IsEmail()
   email: string;
-
-  @ApiProperty()
-  @Expose()
-  createdAt: Date;
-
-  @ApiProperty()
-  @Expose()
-  updatedAt: Date;
 }

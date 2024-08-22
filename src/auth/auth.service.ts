@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { genSalt, hash } from 'bcrypt';
 import { UsersService } from 'src/users/users.service';
@@ -21,7 +26,7 @@ export class AuthService {
   async signUp(email: string, password: string) {
     const user = await this.usersService.getUserByEmail(email);
 
-    if (user) throw new BadRequestException('Email already exists');
+    if (user) throw new ConflictException('Email already exists');
 
     const salt = await this.getSalt();
     const hash = await this.getHashPassword(password, salt);
@@ -34,7 +39,7 @@ export class AuthService {
     if (!user) throw new BadRequestException('User not found');
 
     const hash = await this.getHashPassword(password, user.salt);
-    if (hash !== user.hash) throw new BadRequestException('Invalid password');
+    if (hash !== user.hash) throw new UnauthorizedException('Invalid password');
 
     const payload = { email: user.email, id: user.id };
     const accessToken = await this.jwtService.signAsync(payload);
