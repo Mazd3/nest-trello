@@ -21,7 +21,10 @@ export class ColumnsService {
   }
 
   async getColumnById(id: number) {
-    const column = await this.dbService.column.findUnique({ where: { id } });
+    const column = await this.dbService.column.findUnique({
+      where: { id },
+      include: { cards: true },
+    });
     if (!column) throw new NotFoundException();
     return column;
   }
@@ -29,6 +32,7 @@ export class ColumnsService {
   async createColumn(userId: number, createColumnDto: CreateColumnDto) {
     const column = await this.dbService.column.create({
       data: { ...createColumnDto, userId },
+      include: { cards: true },
     });
 
     return column;
@@ -49,6 +53,7 @@ export class ColumnsService {
     return this.dbService.column.update({
       where: { id: columnId },
       data: updateColumnDto,
+      include: { cards: true },
     });
   }
 
@@ -60,6 +65,9 @@ export class ColumnsService {
     if (!column) throw new NotFoundException();
     if (column.user.id !== userId) throw new ForbiddenException();
 
-    return this.dbService.column.delete({ where: { id: columnId } });
+    return this.dbService.column.delete({
+      where: { id: columnId },
+      include: { cards: true },
+    });
   }
 }

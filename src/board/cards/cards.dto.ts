@@ -1,5 +1,5 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { CommentDto } from '../comments/comments.dto';
 import { IsNotEmpty, IsString } from 'class-validator';
 
@@ -32,6 +32,7 @@ export class CardDto {
 export class ReadCardDto extends CardDto {
   @ApiProperty({ type: [CommentDto] })
   @Expose()
+  @Type(() => CommentDto)
   comments: CommentDto[];
 }
 

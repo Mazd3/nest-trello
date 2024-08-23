@@ -14,12 +14,16 @@ export class CardsService {
     const cards = this.dbService.card.findMany({
       where: { columnId },
       orderBy: { createdAt: 'desc' },
+      include: { comments: true },
     });
     return cards;
   }
 
   async getCardById(id: number) {
-    const card = await this.dbService.card.findUnique({ where: { id } });
+    const card = await this.dbService.card.findUnique({
+      where: { id },
+      include: { comments: true },
+    });
     if (!card) throw new NotFoundException();
 
     return card;
@@ -37,7 +41,10 @@ export class CardsService {
     if (!column) throw new NotFoundException();
     if (column.user.id !== userId) throw new ForbiddenException();
 
-    return this.dbService.card.create({ data: { ...createCardDto, columnId } });
+    return this.dbService.card.create({
+      data: { ...createCardDto, columnId },
+      include: { comments: true },
+    });
   }
 
   async updateCard(
@@ -55,6 +62,7 @@ export class CardsService {
     return this.dbService.card.update({
       where: { id: cardId },
       data: updateCardDto,
+      include: { comments: true },
     });
   }
 
@@ -66,6 +74,9 @@ export class CardsService {
     if (!card) throw new NotFoundException();
     if (card.column.user.id !== userId) throw new ForbiddenException();
 
-    return this.dbService.card.delete({ where: { id: cardId } });
+    return this.dbService.card.delete({
+      where: { id: cardId },
+      include: { comments: true },
+    });
   }
 }
